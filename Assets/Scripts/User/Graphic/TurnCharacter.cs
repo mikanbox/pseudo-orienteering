@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
 public class TurnCharacter : MonoBehaviour {
 
@@ -8,6 +9,10 @@ public class TurnCharacter : MonoBehaviour {
     private bool _isRight = true;
 
     [SerializeField] private static int _speed = 20;
+
+    [SerializeField]
+    private UnityEngine.ParticleSystemRenderer _drops;
+
 
     void FixedUpdate() {
         if (_isRight == true && _direction > 0) {
@@ -28,6 +33,12 @@ public class TurnCharacter : MonoBehaviour {
     public void ChangeDirection(bool isRight){
         if (_isRight != isRight){
             _isRight = isRight;
+
+
+            var em =  _drops.flip;
+            em.x = Convert.ToInt32(!_isRight);
+            _drops.flip = em;
+
         }
     }
 

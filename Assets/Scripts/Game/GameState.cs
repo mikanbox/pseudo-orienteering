@@ -5,7 +5,8 @@ public enum GameState
     Playing,
     Pause,
     Finish,
-    NotPlaying
+    NotPlaying,
+    WalkToStart
 
 }
 

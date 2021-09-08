@@ -7,7 +7,7 @@ using UnityEngine.Tilemaps;
 public class ManipurateUser : MonoBehaviour
 {
     private SpriteRenderer _userSprite;
-    private static ManipurateUser this_ManipurateUser;
+    public static ManipurateUser _ManipurateUser;
     [SerializeField] private Tilemap _tileMap;
     private Vector3 _pastPos;
 
@@ -15,21 +15,25 @@ public class ManipurateUser : MonoBehaviour
     [SerializeField] Animator anim;
 
     private TurnCharacter _turncharacter; 
+
+    private float moveamount = 0;
     
 
     void Awake()
     {
         _userSprite = this.GetComponent<SpriteRenderer>();
-        this_ManipurateUser = this.GetComponent<ManipurateUser>();
+        _ManipurateUser = this.GetComponent<ManipurateUser>();
         _pastPos = GetBottomUserPos();
         _turncharacter = this.GetComponent<TurnCharacter>();
     }
 
     void FixedUpdate() 
     {
-        if (GameMgr._gamemgr._gameState != GameState.Playing)
+        if (GameMgr._gamemgr._gameState != GameState.Playing) 
             return;
+            
         Vector3 playerWorldPosBottom = GetBottomUserPos();
+
 
         float inputx = 0;
         float inputy = 0;
@@ -39,16 +43,60 @@ public class ManipurateUser : MonoBehaviour
             _turncharacter.ChangeDirection( inputx > 0);
 
         // Vector3 playerWorldPosBottom_Next = playerWorldPosBottom + new Vector3(inputx * 0.1f, inputy * 0.1f);
-        Vector3 playerWorldPos_Next = this.transform.position + new Vector3(inputx * 0.1f, inputy * 0.1f);
 
+        float normalized_inputx = 0;
+        float normalized_inputy = 0;
+        (normalized_inputx, normalized_inputy) = NormalizeValue(inputx,inputy);
+
+        Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx * 0.1f, normalized_inputy * 0.1f);
         this.transform.position = playerWorldPos_Next;
+
+
+        UpdateUserParameter(inputx * 0.1f);
+        AddExtraMaptip();
+    }
+
+    private void UpdateUserParameter (float x) {
+        float normalized_x = x;
+        moveamount+= Mathf.Abs(normalized_x);
+
+        float decreaseAmount = 0.1f;
+        List<MapCode> OnMapcodes = GameMgr._gamemgr.GetNowTileMapCodes();
+        for (int i = 0; i < OnMapcodes.Count; i++) {
+            if (OnMapcodes[i] == MapCode.Forest)
+                decreaseAmount *= 5.3f;
+            if (OnMapcodes[i] == MapCode.WaterCource)
+                decreaseAmount *= 10f;
+        }
+
+        if (moveamount > 0.1f) {
+            moveamount-=0.1f;
+            User._user.UpdateHP( decreaseAmount );
+            User._user.UpdateUnTrackingPosition(0.1f);
+        }
+
+        if ( Mathf.Abs(x) == 0) {
+            User._user.UpdateHP(-0.05f);
+            User._user.UpdateUnTrackingPosition(-0.05f);
+        }
+        
+    }
+
+    private void AddExtraMaptip() {
+        if (User._user._parameter._trackingPosition > 30f) {
+            GameMgr._gamemgr.AddExtraMapTip();
+            User._user._parameter._trackingPosition -= 5f;
+        }
+    }
+
+    private (float, float)  NormalizeValue (float x, float y) {
+        float ux = (User._user.GetHPRatio() + 0.3f ) * x;
+        float uy = (User._user.GetHPRatio() + 0.3f ) * y;
+
+        return (ux,uy);
     }
 
 
-    public static ManipurateUser Get()
-    {
-        return this_ManipurateUser;
-    }
 
     private bool IsNextTileMovable(Vector3 clickPosition)
     {
@@ -63,8 +111,22 @@ public class ManipurateUser : MonoBehaviour
         return this.transform.position + new Vector3(0, - height / 2f,0);
     }
 
+    public void MoveUserfromExternal (float x, float y) {
+        if( x != 0 || y != 0 ) {
+            anim.SetBool ( "stop", false );
+        } else {
+            anim.SetBool ( "stop", true );
+        }
 
+        Vector3 playerWorldPos_Next = this.transform.position + new Vector3(x * 0.1f, y * 0.1f);
+        this.transform.position = playerWorldPos_Next;
+    }
+
+    public void StopUserAnimation () {
+        anim.SetBool ( "stop", true );
+    }
     
+
     private (float, float) InputFromUser() {
         (float x,float y) = InputMoveDirectionFromKey();
 
@@ -73,9 +135,10 @@ public class ManipurateUser : MonoBehaviour
         } else {
             anim.SetBool ( "stop", true );
         } 
-
         return (x, y);
     }
+
+
     private (float, float) InputMoveDirectionFromKey() {
         float x = Input.GetAxisRaw("Horizontal");
         float y = Input.GetAxisRaw("Vertical");

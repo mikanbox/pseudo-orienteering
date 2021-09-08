@@ -13,14 +13,25 @@ public class GameMgr : MonoBehaviour
     private UnityEngine.UI.Text _time;
 
     public static GameMgr _gamemgr;
+    public GameMode _gamemode = GameMode.Normal;
+    public GameObject _gameScreen;
+
+
+    public int _defaultPoint = 100;
+    public GameParameter _defaultParameter;
+
+
 
 
 
     public Tile sample;
     public Tile Post;
+    public List<List<MapCode>> _generatedMap;
 
     int _pos_front_map = 0;
-    public GameState _gameState = GameState.PreStart;
+    int _numOfExtraAddTips = 0;
+    bool _isGoalesSet = false;
+    public GameState _gameState = GameState.NotPlaying;
 
     private Timer _timer;
 
@@ -34,6 +45,19 @@ public class GameMgr : MonoBehaviour
 
     void FixedUpdate()
     {
+        if (_gameState == GameState.WalkToStart) {
+            float x = 0.5f;
+            if (_player.transform.position.x + x > 10) {
+                x = 10 - _player.transform.position.x;
+                _gameState = GameState.CountDown;
+                ManipurateUser._ManipurateUser.StopUserAnimation();
+                PrepareStart(3,PrepareStart);
+            } else {
+                ManipurateUser._ManipurateUser.MoveUserfromExternal(x,0f);
+            }
+        }
+
+
 
         if (_gameState != GameState.Playing)
             return;
@@ -42,25 +66,33 @@ public class GameMgr : MonoBehaviour
         _time.text = "" + _timer.GetElapsedTime();
 
         // ConfirmGameState
-        if (StageMgr._stagemgr.isReachGoal(_player.transform.position) ){
+        if (StageMgr._stagemgr.isReachGoal(NormalizedPlayerPosX((int)_player.transform.position.x ) + 1 ) ){
             FinishGame();
         }
-
+    
         // MgrOtherPlayers
     }
 
+
+
+
     public void InitializeGame()
     {
+        _gameState = GameState.PreStart;
+        _gameScreen.SetActive(true);
+        _generatedMap = new List<List<MapCode>>();
         StageMgr.GenerateMapArray();
 
+    
         GenerateMapArroundPlayer(new Vector3(10, 0, 0));
-        MovePlayertoStart(new Vector3(10, 0, 0));
+
+        // MovePlayerPostoStart(new Vector3(10, 0, 0));
+        // UserSetting
+        // User._user.SetGameParameter(new GameParameter(200,200,200,200));
+        User._user.SetGameParameter(_defaultParameter);
 
         
-        _gameState =GameState.CountDown;
-
-
-        PrepareStart(3,PrepareStart);
+        _gameState = GameState.WalkToStart;
     }
 
     private void PrepareStart(int count, FunctionVar func)
@@ -80,6 +112,7 @@ public class GameMgr : MonoBehaviour
         }
 
         if (count == 0) {
+
             UIMgr._uimgr._screenSimpleText.SetText("GO !!");
             StartCoroutine(DelayCoroutine(1, () => {  UIMgr._uimgr._screenSimpleText.DisplayOFF();  }));
             _gameState =GameState.Playing;
@@ -99,7 +132,7 @@ public class GameMgr : MonoBehaviour
     }
 
     // 10,0,0
-    private void MovePlayertoStart(Vector3 pos)
+    private void MovePlayerPostoStart(Vector3 pos)
     {
         _player.transform.position = pos;
     }
@@ -107,30 +140,58 @@ public class GameMgr : MonoBehaviour
 
     // 現在地より前 8 マス分マップ作成する
 
+    public void AddExtraMapTip () {
+        if (_isGoalesSet)
+            return;
+        var tiles = StageMgr._stagemgr._stage._mappings.Mappings[MapCode.WaterCource];
+        
+        for ( int k = 0; k < tiles.Count; k++) {
+            Tile tile = tiles[k];
+            _tilemap.SetTile(new Vector3Int(_pos_front_map, 0, 0), tile);
+        }
+        _pos_front_map++;
+        _numOfExtraAddTips++;
+
+        _generatedMap.Add(new List<MapCode>());
+        _generatedMap[_generatedMap.Count - 1].Add(MapCode.WaterCource);
+    }
+
+    public List<MapCode> GetNowTileMapCodes () {
+        return _generatedMap[ (int)_player.transform.position.x ];
+    }
+
+
     private void GenerateMapArroundPlayer(Vector3 playerpos )
     {
         int playerpos_x = (int)playerpos.x;
+        // int playerpos_normalized_x = NormalizedPlayerPosX(playerpos_x);
         
         if (_pos_front_map > playerpos_x + 8)
             return;
 
         for (int i = _pos_front_map; i < playerpos_x + 8; i++ ) {
-            for (int j = 0; j < StageMgr._stagemgr.stageArray[i].Count;j++) {
+            int i_n = i - _numOfExtraAddTips;
+            _generatedMap.Add(new List<MapCode>());
+            for (int j = 0; j < StageMgr._stagemgr.stageArray[i_n].Count;j++) {
 
-                Maptip p = StageMgr._stagemgr.stageArray[i][j];
+                Maptip p = StageMgr._stagemgr.stageArray[i_n][j];
                 var tiles = StageMgr._stagemgr._stage._mappings.Mappings[p._mapcode];
                 
                 for ( int k = 0; k < tiles.Count; k++) {
                     Tile tile = tiles[k];
                     _tilemap.SetTile(new Vector3Int(i, p._height + k, 0), tile);
                 }
-                
-
+                if (p._mapcode == MapCode.Goal1)
+                    _isGoalesSet = true;
                 // Debug.Log("i : " + i + "   p.height : " + p._height);
+                _generatedMap[_generatedMap.Count - 1].Add(p._mapcode);
             }
-
         }
         _pos_front_map = playerpos_x + 8;
+    }
+
+    public int NormalizedPlayerPosX(int x) {
+        return x - _numOfExtraAddTips;
     }
 
 

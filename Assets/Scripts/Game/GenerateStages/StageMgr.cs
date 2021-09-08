@@ -38,7 +38,7 @@ public class StageMgr
 
     private void GenerateStageFromData(int _random_seed)
     {
-        // Generate Start
+        // Generate Start [x axis][height]
         this.stageArray = new List<List<Maptip>> (_stage._total_distance + _margin * 2);
         for (int i = 0; i < _margin; i++ ) {
             stageArray.Add(new List<Maptip>());
@@ -154,8 +154,7 @@ public class StageMgr
         }
     }
 
-    public bool isReachGoal(Vector3 pos){
-        int x = (int)pos.x + 1;
+    public bool isReachGoal(int x){
         return (_stage._total_distance * 10  <= x - 10);
     }
 }

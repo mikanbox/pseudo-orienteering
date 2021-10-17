@@ -7,10 +7,13 @@ public class BlinkText : MonoBehaviour
     UnityEngine.UI.Text character;
     public float speed = 0.5f;
     private float time;
+    [SerializeField]
+    private float delay = 0f;
 
     void Start()
     {
         character = this.gameObject.GetComponent<UnityEngine.UI.Text>(); 
+        time += delay;
     }
 
     void Update()

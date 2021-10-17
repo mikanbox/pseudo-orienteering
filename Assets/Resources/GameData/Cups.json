@@ -1,0 +1,36 @@
+{
+    "cups": [
+        {
+            "id":1,
+            "name":"チュートリアル",
+            "terrain" : 0,
+            "distance" : 10,
+            "difficulty" : 1,
+            "rank" : 1
+        },
+        {
+            "id":2,
+            "name":"チュートリアル - 2",
+            "terrain" : 0,
+            "distance" : 15,
+            "difficulty" : 1,
+            "rank" : 1
+        },
+        {
+            "id":3,
+            "name":"チュートリアル - 3",
+            "terrain" : 0,
+            "distance" : 19,
+            "difficulty" : 2,
+            "rank" : 1
+        },
+        {
+            "id":4,
+            "name":"ワクワクビギナーズカップ",
+            "terrain" : 1,
+            "distance" : 12,
+            "difficulty" : 1,
+            "rank" : 1
+        }
+    ]
+}

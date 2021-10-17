@@ -1,0 +1,32 @@
+{
+    "terrains": [
+        {
+            "id":1,
+            "name":"小さな街",
+            "geology" : [
+                {
+                    "open":1
+                }
+            ],
+            "parameters" : [
+                {
+                    "difficulty":1
+                }
+            ]
+        },
+        {
+            "id":1,
+            "name":"はじまりの草原",
+            "geology" : [
+                {
+                    "open":1
+                }
+            ],
+            "parameters" : [
+                {
+                    "difficulty":1
+                }
+            ]
+        }
+    ]
+}

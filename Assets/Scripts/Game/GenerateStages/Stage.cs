@@ -15,6 +15,7 @@ public class Stage
     
     public Stage () 
     {
+        //サンプルの geology を生成
         _geology = new Geology();
         _steeper_percentage = 5;
         _geology.MaptipRatio.Add(MapCode.Open,40);
@@ -61,8 +62,8 @@ public class Stage
 
         _sections = new List<Section>();
         _sections.Add(new Section(1));
-        _sections.Add(new Section(2));
-        _sections.Add(new Section(1));
+        // _sections.Add(new Section(1));
+        // _sections.Add(new Section(1));
         Total_distance();
 
     }

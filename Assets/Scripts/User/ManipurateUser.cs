@@ -17,6 +17,9 @@ public class ManipurateUser : MonoBehaviour
     private TurnCharacter _turncharacter; 
 
     private float moveamount = 0;
+
+    // public bool lostPosition = false;
+    private float lostPositionInterval = 0f;
     
 
     void Awake()
@@ -33,27 +36,38 @@ public class ManipurateUser : MonoBehaviour
             return;
             
         Vector3 playerWorldPosBottom = GetBottomUserPos();
-
-
         float inputx = 0;
         float inputy = 0;
-        (inputx, inputy) = InputFromUser();
 
-        if (inputx != 0)
-            _turncharacter.ChangeDirection( inputx > 0);
 
-        // Vector3 playerWorldPosBottom_Next = playerWorldPosBottom + new Vector3(inputx * 0.1f, inputy * 0.1f);
+        if (!User._user._islostPosition){
+            (inputx, inputy) = InputFromUser();
 
-        float normalized_inputx = 0;
-        float normalized_inputy = 0;
-        (normalized_inputx, normalized_inputy) = NormalizeValue(inputx,inputy);
+            if (inputx != 0)
+                _turncharacter.ChangeDirection( inputx > 0);
 
-        Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx * 0.1f, normalized_inputy * 0.1f);
-        this.transform.position = playerWorldPos_Next;
+            // Vector3 playerWorldPosBottom_Next = playerWorldPosBottom + new Vector3(inputx * 0.1f, inputy * 0.1f);
 
+            float normalized_inputx = 0;
+            float normalized_inputy = 0;
+            (normalized_inputx, normalized_inputy) = NormalizeValue(inputx,inputy);
+
+            Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx * 0.1f, normalized_inputy * 0.1f);
+            this.transform.position = playerWorldPos_Next;
+        }
+
+        if (lostPositionInterval > 0) {
+            lostPositionInterval -=Time.deltaTime;
+            if (lostPositionInterval < 0) {
+                lostPositionInterval = 0;
+                User._user._islostPosition = false;
+            }  
+        }
 
         UpdateUserParameter(inputx * 0.1f);
-        AddExtraMaptip();
+
+        LostPositionCheck();
+        // AddExtraMaptip();
     }
 
     private void UpdateUserParameter (float x) {
@@ -80,6 +94,14 @@ public class ManipurateUser : MonoBehaviour
             User._user.UpdateUnTrackingPosition(-0.05f);
         }
         
+    }
+
+    private void LostPositionCheck() {
+        if (User._user._parameter._trackingPosition > 30f + Random.Range(0f,10f)) {
+            // lostPosition = true;
+            User._user._islostPosition = true;
+            lostPositionInterval = 2f + Random.Range(0f,2f);
+        }
     }
 
     private void AddExtraMaptip() {

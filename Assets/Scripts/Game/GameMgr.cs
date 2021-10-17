@@ -37,6 +37,8 @@ public class GameMgr : MonoBehaviour
 
     delegate void FunctionVar(int count, FunctionVar func);
 
+    public CalcExpMgr _ExpMgr;
+
     void Awake()
     {
         _gamemgr = this.GetComponent<GameMgr>();
@@ -80,20 +82,21 @@ public class GameMgr : MonoBehaviour
     {
         _gameState = GameState.PreStart;
         _gameScreen.SetActive(true);
-        _generatedMap = new List<List<MapCode>>();
+        //マップの元作成
         StageMgr.GenerateMapArray();
+        _ExpMgr = new CalcExpMgr();
+        MovePlayerPostoStart(new Vector3(-3.44f,0.48f,0));
 
-    
+
+        // 変数初期化と実際のマップ生成
+        _generatedMap = new List<List<MapCode>>();
         GenerateMapArroundPlayer(new Vector3(10, 0, 0));
 
-        // MovePlayerPostoStart(new Vector3(10, 0, 0));
-        // UserSetting
-        // User._user.SetGameParameter(new GameParameter(200,200,200,200));
-        User._user.SetGameParameter(_defaultParameter);
-
-        
+        User._user.SetGameParameter(_defaultParameter);        
         _gameState = GameState.WalkToStart;
     }
+
+
 
     private void PrepareStart(int count, FunctionVar func)
     {
@@ -110,9 +113,7 @@ public class GameMgr : MonoBehaviour
         if (count > 0) {
             StartCoroutine(DelayCoroutine(1, () => func(count-1, func)));
         }
-
         if (count == 0) {
-
             UIMgr._uimgr._screenSimpleText.SetText("GO !!");
             StartCoroutine(DelayCoroutine(1, () => {  UIMgr._uimgr._screenSimpleText.DisplayOFF();  }));
             _gameState =GameState.Playing;
@@ -128,8 +129,31 @@ public class GameMgr : MonoBehaviour
 
         _gameState = GameState.Finish;
 
-        StartCoroutine(DelayCoroutine(3, () => {  UIMgr._uimgr._fadescreen.DisplayOn();  }));
+        StartCoroutine(DelayCoroutine(3, () => {  ResultGame();   }));
+        
     }
+
+
+    private void ResultGame() {
+        _ExpMgr.GoalCup();
+        User._user.CalcParameter();
+
+        UIMgr._uimgr._screenSimpleText.DisplayOFF();
+        MovePlayerPostoStart(new Vector3(-3.44f,0.48f,0));
+
+
+        // _tilemap.ClearAllTiles();
+        
+        _generatedMap.Clear();
+        _isGoalesSet = false;
+        _pos_front_map = 0;
+
+        
+        MenuMgr._menumgr.InitializeMenu("Result");
+        _gameScreen.SetActive(false);
+    }
+
+
 
     // 10,0,0
     private void MovePlayerPostoStart(Vector3 pos)
@@ -139,7 +163,6 @@ public class GameMgr : MonoBehaviour
 
 
     // 現在地より前 8 マス分マップ作成する
-
     public void AddExtraMapTip () {
         if (_isGoalesSet)
             return;
@@ -156,7 +179,9 @@ public class GameMgr : MonoBehaviour
         _generatedMap[_generatedMap.Count - 1].Add(MapCode.WaterCource);
     }
 
+
     public List<MapCode> GetNowTileMapCodes () {
+        Debug.Log(" _generatedMapSize :  " + _generatedMap.Count);
         return _generatedMap[ (int)_player.transform.position.x ];
     }
 

@@ -23,11 +23,24 @@ public class User : MonoBehaviour
     [SerializeField]
     private UnityEngine.ParticleSystem _questions;
 
+    public bool _islostPosition =false;
+
+    public Dictionary<GameUserParameter,int> _isLVUpCheckRes;
+    public GameUserExp _userexp;
+
+
 
     void Awake()
     {
         _user = this.GetComponent<User>();
+        loadUserdata();
     }
+
+    public void loadUserdata() {
+        _userexp = new GameUserExp();
+    }
+
+    
 
     public void UpdateHP(float minusHpAmount) {
         _parameter._hp -= minusHpAmount * 10;
@@ -48,16 +61,36 @@ public class User : MonoBehaviour
             em.rateOverTime = 0;
         }
     }
+    
 
+
+    public void UpdateExp(GameUserExp tmpexp) {
+        _userexp.addExp(tmpexp);
+        // CalcParameter();
+    }
+
+    public void CalcParameter() {
+        _isLVUpCheckRes = _userexp.isLVUpCheck();
+    }
 
 
     public void UpdateUnTrackingPosition(float p) {
         _parameter._trackingPosition += p;
         _windowTrackingSlider.value = _parameter._trackingPosition /100f;
 
-        if ( (_parameter._trackingPosition / 100f) > 0.1f ) {
+        // if ( (_parameter._trackingPosition / 100f) > 0.1f ) {
+        //     var em = _questions.emission;
+        //     em.rateOverTime = (_parameter._trackingPosition / 100f)*10;
+        // } else {
+        //     var em = _questions.emission;
+        //     em.rateOverTime = 0;
+        // }
+
+        if (_islostPosition) {
             var em = _questions.emission;
-            em.rateOverTime = (_parameter._trackingPosition / 100f)*10;
+            em.rateOverTime = (50 / 100f)*10;
+            ManipurateUser._ManipurateUser.StopUserAnimation();
+            
         } else {
             var em = _questions.emission;
             em.rateOverTime = 0;

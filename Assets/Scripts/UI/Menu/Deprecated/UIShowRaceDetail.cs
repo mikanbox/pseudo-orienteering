@@ -25,10 +25,6 @@ public class UIShowRaceDetail : MonoBehaviour
     private List<Text> _userParam = new List<Text>(4);
 
 
-    void Start (){
-
-    }
-
     void OnEnable() {
         if (UISelectCup._selected < 0)
             UISelectCup._selected = 0;

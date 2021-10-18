@@ -57,3 +57,17 @@ public class CupsData
 {
     public CupData[] cups;
 }
+
+
+
+public enum GameState
+{
+    PreStart,
+    CountDown,
+    Playing,
+    Pause,
+    Finish,
+    NotPlaying,
+    WalkToStart
+
+}

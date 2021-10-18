@@ -46,23 +46,21 @@ public class ManipurateUser : MonoBehaviour
             if (inputx != 0)
                 _turncharacter.ChangeDirection( inputx > 0);
 
-            // Vector3 playerWorldPosBottom_Next = playerWorldPosBottom + new Vector3(inputx * 0.1f, inputy * 0.1f);
-
             float normalized_inputx = 0;
             float normalized_inputy = 0;
             (normalized_inputx, normalized_inputy) = NormalizeValue(inputx,inputy);
 
-            Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx * 0.1f, normalized_inputy * 0.1f);
+            Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx,  normalized_inputy)* 0.1f;
             this.transform.position = playerWorldPos_Next;
         }
 
-        if (lostPositionInterval > 0) {
+        if (lostPositionInterval > 0) 
             lostPositionInterval -=Time.deltaTime;
-            if (lostPositionInterval < 0) {
-                lostPositionInterval = 0;
-                User._user._islostPosition = false;
-            }  
-        }
+        if (lostPositionInterval < 0) {
+            lostPositionInterval = 0;
+            User._user._islostPosition = false;
+        }  
+        
 
         UpdateUserParameter(inputx * 0.1f);
 
@@ -70,6 +68,8 @@ public class ManipurateUser : MonoBehaviour
         // AddExtraMaptip();
     }
 
+
+// 移動に伴うユーザーパラメータ更新
     private void UpdateUserParameter (float x) {
         float normalized_x = x;
         moveamount+= Mathf.Abs(normalized_x);

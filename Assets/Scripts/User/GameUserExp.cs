@@ -3,38 +3,6 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using System;
-public class GameParameter 
-{
-    public int _speed;
-    public int _stamina;
-    public int _intelligence;
-    public int _guts;
-
-    public float _hp;
-    public float _maxhp;
-
-    public float _trackingPosition;
-
-    public static Dictionary<GameUserParameter,string> _gameUserParameterToName = new Dictionary<GameUserParameter,string>() {
-        {GameUserParameter.speed,"speed"},
-        {GameUserParameter.stamina,"stamina"},
-        {GameUserParameter.intelligence,"intelligence"},
-        {GameUserParameter.guts,"guts"},
-        {GameUserParameter.maxhp,"maxhp"},
-    };
-
-
-    public GameParameter(int speed, int stamina, int intelligence, int guts) {
-        _speed = speed;
-        _stamina = stamina;
-        _intelligence = intelligence;
-        _guts = guts;
-
-        _maxhp = stamina;
-        _hp = _maxhp;
-        _trackingPosition = 0;
-    }
-}
 
 
 
@@ -46,11 +14,14 @@ public class GameUserExp {
     float _guts = 0;
     float _maxhp = 0;
 
+
+
     public int _speedlv = 1;
     public int _staminalv = 1;
     public int _intelligencelv = 1;
     public int _gutslv = 1;
     public int _maxhplv = 1;
+
 
     public GameUserExp() {
         _speed = 0;
@@ -76,13 +47,19 @@ public class GameUserExp {
         _maxhp += addexp._maxhp;
     }
 
-    public void updateLV (int speedlv,int staminalv,int intelligencelv,int gutslv,int maxhplv) {
+
+
+
+    public void setLV (int speedlv,int staminalv,int intelligencelv,int gutslv,int maxhplv) {
         _speedlv = speedlv;
         _staminalv = staminalv;
         _intelligencelv = intelligencelv;
         _gutslv = gutslv;
         _maxhplv = maxhplv;
     }
+
+
+
 
     public Dictionary<GameUserParameter,int> isLVUpCheck() {
         Dictionary<GameUserParameter,int> lvUpList = new Dictionary<GameUserParameter, int>();
@@ -118,30 +95,34 @@ public class GameUserExp {
         return lvUpList;
     }
     
+
+    public void MoveToNewMapTip(MapCode code) {
+        float stamina = 0;
+        float speed = 0;
+        float intelligence = 0;
+        float guts = 0;
+        float maxhp = 0;
+
+        speed += 0.01f;
+
+        switch(code) {
+            case MapCode.Forest:
+            break;
+        }
+        this.addExp(speed,stamina,intelligence,guts,maxhp);
+    }
+
+    public void GoalCup() {
+        float stamina = 0;
+        float speed = 0;
+        float intelligence = 0;
+        float guts = 0;
+        float maxhp = 0;
+
+        maxhp += 1000;
+        guts += 1000f;
+
+        this.addExp(speed,stamina,intelligence,guts,maxhp);
+    }
     
 }
-
-
-
-public enum GameUserParameter {
-    speed,
-    stamina,
-    intelligence,
-    guts,
-    maxhp
-}
-
-
-
-public enum GameUserSkillParameter {
-    shoes,
-    grobe,
-    book,
-    hatimaki
-    
-}
-
-
-
-
-

@@ -11,51 +11,56 @@ public class GameMgr : MonoBehaviour
     private GameObject _player;
     [SerializeField]
     private UnityEngine.UI.Text _time;
-
-    public static GameMgr _gamemgr;
-    public GameMode _gamemode = GameMode.Normal;
     public GameObject _gameScreen;
-
-
-    public int _defaultPoint = 100;
-    public GameParameter _defaultParameter;
-
-
-
-
-
-    public Tile sample;
-    public Tile Post;
     public List<List<MapCode>> _generatedMap;
 
     int _pos_front_map = 0;
+    bool _isGoalTileMapSet = false;
+    public Timer _GamePlaytimer;
+
+
+
+    public static GameMgr _gamemgr;
+    public GameMode _gamemode = GameMode.Normal;
+
+
+
+// TODOそのうち消す
+    public int _defaultPoint = 100;
+    public GameParameter _defaultParameter;
     int _numOfExtraAddTips = 0;
-    bool _isGoalesSet = false;
+
+
+
+
+
     public GameState _gameState = GameState.NotPlaying;
 
-    private Timer _timer;
 
     delegate void FunctionVar(int count, FunctionVar func);
 
-    public CalcExpMgr _ExpMgr;
+    public GameUserExp _estimatedGetExp;
+
+
+
 
     void Awake()
     {
         _gamemgr = this.GetComponent<GameMgr>();
-        _timer = new Timer();
+        _GamePlaytimer = new Timer();
+        User._user.SetGameParameter(new GameParameter(100,100,100,100,100));
     }
 
     void FixedUpdate()
     {
         if (_gameState == GameState.WalkToStart) {
-            float x = 0.5f;
-            if (_player.transform.position.x + x > 10) {
-                x = 10 - _player.transform.position.x;
-                _gameState = GameState.CountDown;
+            float movesteps = 0.5f;
+            if (_player.transform.position.x + movesteps > 10) {
                 ManipurateUser._ManipurateUser.StopUserAnimation();
+                _gameState = GameState.CountDown;
                 PrepareStart(3,PrepareStart);
             } else {
-                ManipurateUser._ManipurateUser.MoveUserfromExternal(x,0f);
+            ManipurateUser._ManipurateUser.MoveUserfromExternal(movesteps,0f);
             }
         }
 
@@ -63,17 +68,20 @@ public class GameMgr : MonoBehaviour
 
         if (_gameState != GameState.Playing)
             return;
+
         // GenerateTileMaps
         GenerateMapArroundPlayer(_player.transform.position);
-        _time.text = "" + _timer.GetElapsedTime();
+        _time.text = "" + _GamePlaytimer.GetElapsedTime();
 
+        // ■■終了条件■■
         // ConfirmGameState
-        if (StageMgr._stagemgr.isReachGoal(NormalizedPlayerPosX((int)_player.transform.position.x ) + 1 ) ){
-            FinishGame();
-        }
+        if (StageMgr._stagemgr.isReachGoal(  PlayerPosXonMap((int)_player.transform.position.x )+1  ) )
+            GameClear();
     
         // MgrOtherPlayers
     }
+
+
 
 
 
@@ -82,17 +90,18 @@ public class GameMgr : MonoBehaviour
     {
         _gameState = GameState.PreStart;
         _gameScreen.SetActive(true);
-        //マップの元作成
+        
+        _estimatedGetExp = new GameUserExp();
+        MovePlayerPos(new Vector3(-3.44f,0.48f,0));
+
+
+        //マップの元作成 変数初期化と実際のマップ生成
         StageMgr.GenerateMapArray();
-        _ExpMgr = new CalcExpMgr();
-        MovePlayerPostoStart(new Vector3(-3.44f,0.48f,0));
-
-
-        // 変数初期化と実際のマップ生成
         _generatedMap = new List<List<MapCode>>();
         GenerateMapArroundPlayer(new Vector3(10, 0, 0));
 
-        User._user.SetGameParameter(_defaultParameter);        
+
+        
         _gameState = GameState.WalkToStart;
     }
 
@@ -100,71 +109,73 @@ public class GameMgr : MonoBehaviour
 
     private void PrepareStart(int count, FunctionVar func)
     {
-        if (count == 3) {
-            UIMgr._uimgr._screenSimpleText.DisplayOn();
-            UIMgr._uimgr._screenSimpleText.SetText("3");
+        switch(count) {
+            case 3:
+                UIMgr._uimgr._screenSimpleText.DisplayOn();
+                UIMgr._uimgr._screenSimpleText.SetText(count.ToString());
+                StartCoroutine(DelayCoroutine(1, () => func(count-1, func)));
+            break;
+            case 2:
+            case 1:
+                UIMgr._uimgr._screenSimpleText.SetText(count.ToString());
+                StartCoroutine(DelayCoroutine(1, () => func(count-1, func)));
+            break;
+            case 0:
+                UIMgr._uimgr._screenSimpleText.SetText("GO !!");
+                _gameState =GameState.Playing;
+                _GamePlaytimer.RecordStart();
+                StartCoroutine(DelayCoroutine(1, () => {  UIMgr._uimgr._screenSimpleText.DisplayOFF();  }));
+            break;
         }
-        if (count == 2) {
-            UIMgr._uimgr._screenSimpleText.SetText("2");
-        }
-        if (count == 1) {
-            UIMgr._uimgr._screenSimpleText.SetText("1");
-        }
-        if (count > 0) {
-            StartCoroutine(DelayCoroutine(1, () => func(count-1, func)));
-        }
-        if (count == 0) {
-            UIMgr._uimgr._screenSimpleText.SetText("GO !!");
-            StartCoroutine(DelayCoroutine(1, () => {  UIMgr._uimgr._screenSimpleText.DisplayOFF();  }));
-            _gameState =GameState.Playing;
-            _timer.RecordStart();
-        }
+
     }
 
 
 
-    public void FinishGame(){
+    public void GameClear(){
         UIMgr._uimgr._screenSimpleText.DisplayOn();
         UIMgr._uimgr._screenSimpleText.SetText("GOAL !!");
 
+        _GamePlaytimer.RecordStop();
+        _estimatedGetExp.GoalCup();
         _gameState = GameState.Finish;
-
-        StartCoroutine(DelayCoroutine(3, () => {  ResultGame();   }));
-        
+        StartCoroutine(DelayCoroutine(3, () => {
+            UIMgr._uimgr._screenSimpleText.DisplayOFF();
+            ProcessGameResult();   
+            }));   
     }
 
-
-    private void ResultGame() {
-        _ExpMgr.GoalCup();
-        User._user.CalcParameter();
-
-        UIMgr._uimgr._screenSimpleText.DisplayOFF();
-        MovePlayerPostoStart(new Vector3(-3.44f,0.48f,0));
+    private void ProcessGameResult() {
+        // userクラスで経験値も扱う
+        User._user.UpdateExp(_estimatedGetExp);
 
 
-        // _tilemap.ClearAllTiles();
-        
-        _generatedMap.Clear();
-        _isGoalesSet = false;
-        _pos_front_map = 0;
-
+        ClearGameState();
         
         MenuMgr._menumgr.InitializeMenu("Result");
         _gameScreen.SetActive(false);
     }
+    private void ClearGameState() {
+        MovePlayerPos(new Vector3(-3.44f,0.48f,0));
+        _generatedMap.Clear();
+        _isGoalTileMapSet = false;
+        _pos_front_map = 0;
+    }
+
+
 
 
 
     // 10,0,0
-    private void MovePlayerPostoStart(Vector3 pos)
+    private void MovePlayerPos(Vector3 pos)
     {
         _player.transform.position = pos;
     }
 
 
-    // 現在地より前 8 マス分マップ作成する
+    //  DepreCated
     public void AddExtraMapTip () {
-        if (_isGoalesSet)
+        if (_isGoalTileMapSet)
             return;
         var tiles = StageMgr._stagemgr._stage._mappings.Mappings[MapCode.WaterCource];
         
@@ -181,15 +192,14 @@ public class GameMgr : MonoBehaviour
 
 
     public List<MapCode> GetNowTileMapCodes () {
-        Debug.Log(" _generatedMapSize :  " + _generatedMap.Count);
         return _generatedMap[ (int)_player.transform.position.x ];
     }
 
 
+    // _generatedMap に MacCode のリスト p を追加
     private void GenerateMapArroundPlayer(Vector3 playerpos )
     {
         int playerpos_x = (int)playerpos.x;
-        // int playerpos_normalized_x = NormalizedPlayerPosX(playerpos_x);
         
         if (_pos_front_map > playerpos_x + 8)
             return;
@@ -207,15 +217,17 @@ public class GameMgr : MonoBehaviour
                     _tilemap.SetTile(new Vector3Int(i, p._height + k, 0), tile);
                 }
                 if (p._mapcode == MapCode.Goal1)
-                    _isGoalesSet = true;
-                // Debug.Log("i : " + i + "   p.height : " + p._height);
+                    _isGoalTileMapSet = true;
+
                 _generatedMap[_generatedMap.Count - 1].Add(p._mapcode);
             }
         }
         _pos_front_map = playerpos_x + 8;
     }
 
-    public int NormalizedPlayerPosX(int x) {
+
+    // マップ上のPosを示す
+    public int PlayerPosXonMap(int x) {
         return x - _numOfExtraAddTips;
     }
 

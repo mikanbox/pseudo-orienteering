@@ -26,76 +26,76 @@ public class User : MonoBehaviour
     public bool _islostPosition =false;
 
     public Dictionary<GameUserParameter,int> _isLVUpCheckRes;
+    public Dictionary<GameUserParameter,int> _PrevParams;
     public GameUserExp _userexp;
 
 
 
     void Awake()
     {
+        _PrevParams = new Dictionary<GameUserParameter, int>();
         _user = this.GetComponent<User>();
         loadUserdata();
     }
 
+// TODO セーブデータからロード
     public void loadUserdata() {
         _userexp = new GameUserExp();
     }
 
-    
-
-    public void UpdateHP(float minusHpAmount) {
-        _parameter._hp -= minusHpAmount * 10;
-        if (_parameter._hp < 0)
-            _parameter._hp = 0;
-        
-        if (_parameter._hp > _parameter._maxhp)
-            _parameter._hp = _parameter._maxhp;
-        
-
-        _windowHpSlider.value = GetHPRatio();
-
-        if (GetHPRatio() < 0.7f) {
-            var em = _drops.emission;
-            em.rateOverTime = (1f - GetHPRatio()) * 5.0f;
-        } else {
-            var em = _drops.emission;
-            em.rateOverTime = 0;
-        }
-    }
-    
 
 
     public void UpdateExp(GameUserExp tmpexp) {
         _userexp.addExp(tmpexp);
-        // CalcParameter();
-    }
-
-    public void CalcParameter() {
         _isLVUpCheckRes = _userexp.isLVUpCheck();
+
+        foreach (KeyValuePair<GameUserParameter, int> item in _isLVUpCheckRes) {
+            int value = GameParameter.CalcParamperLV(item.Key,item.Value);
+            _PrevParams[item.Key] = _parameter.GetSingleParam(item.Key);
+            _parameter.addSingleParam(item.Key,value);
+        }
+
+        _parameter._hp = _parameter._maxhp;
     }
 
 
+
+
+// ゲーム中
+
+    public void UpdateHP(float minusHpAmount) {
+        _parameter._hp -= minusHpAmount * 10;
+        _parameter._hp = Mathf.Max(_parameter._hp,0);
+        _parameter._hp = Mathf.Min(_parameter._hp,_parameter._maxhp);
+
+
+        _windowHpSlider.value = GetHPRatio();
+
+        var em = _drops.emission;
+        em.rateOverTime = 0;
+        if (GetHPRatio() < 0.7f) 
+            em.rateOverTime = (1f - GetHPRatio()) * 5.0f;
+        
+    }
+    
+    //ツボりどを計算
     public void UpdateUnTrackingPosition(float p) {
         _parameter._trackingPosition += p;
         _windowTrackingSlider.value = _parameter._trackingPosition /100f;
 
-        // if ( (_parameter._trackingPosition / 100f) > 0.1f ) {
-        //     var em = _questions.emission;
-        //     em.rateOverTime = (_parameter._trackingPosition / 100f)*10;
-        // } else {
-        //     var em = _questions.emission;
-        //     em.rateOverTime = 0;
-        // }
-
+        var em = _questions.emission;
         if (_islostPosition) {
-            var em = _questions.emission;
             em.rateOverTime = (50 / 100f)*10;
             ManipurateUser._ManipurateUser.StopUserAnimation();
             
         } else {
-            var em = _questions.emission;
             em.rateOverTime = 0;
         }
 
+    }
+
+    public void SetGameParameter (GameParameter param) {
+        _parameter = param;
     }
 
 
@@ -103,8 +103,6 @@ public class User : MonoBehaviour
         return _parameter._hp / _parameter._maxhp;
     }
 
-    public void SetGameParameter (GameParameter param) {
-        _parameter = param;
-    }
+
 
 }

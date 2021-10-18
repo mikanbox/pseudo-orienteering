@@ -10,16 +10,18 @@ public class MenuMgr : MonoBehaviour
     public static MenuMgr _menumgr;
     public Stack<MenuState> _stateStack;
     public GameObject _wholeScreen;
+    public GameObject _selectBox;
 
 
 
+
+// UIのオブジェクト
     [SerializeField]
     private GameObject CreateCharacter;
     [SerializeField]
     private GameObject SelectTerraion;
     [SerializeField]
     private GameObject SelectClass;
-
     [SerializeField]
     private GameObject SelectCup;
     [SerializeField]
@@ -37,10 +39,9 @@ public class MenuMgr : MonoBehaviour
 
 
 
-    [SerializeField]
-    private GameObject _plusBar;
-    [SerializeField]
-    private UnityEngine.UI.Text _Parameterpoint;
+
+
+
 
     [SerializeField]
     private UnityEngine.UI.Text _screenTitle;
@@ -81,6 +82,10 @@ public class MenuMgr : MonoBehaviour
     void Awake()
     {
         _menumgr = this.GetComponent<MenuMgr>();
+        RegisterObject();
+        _stateStack = new Stack<MenuState>();
+    }
+    private void RegisterObject(){
         _stateScreenMapping = new Dictionary<MenuState, GameObject>();
         _stateScreenMapping.Add(MenuState.CreateCharacter,CreateCharacter);
         _stateScreenMapping.Add(MenuState.SelectTerraion,SelectTerraion);
@@ -89,8 +94,6 @@ public class MenuMgr : MonoBehaviour
         _stateScreenMapping.Add(MenuState.ShowRaceDetail,ShowRaceDetail);
         _stateScreenMapping.Add(MenuState.ResultDetail1,ResultDetail1);
         _stateScreenMapping.Add(MenuState.ResultDetail2,ResultDetail2);
-
-        _stateStack = new Stack<MenuState>();
     }
 
 
@@ -99,25 +102,25 @@ public class MenuMgr : MonoBehaviour
     {
 
         GameMode mode = (GameMode)System.Enum.Parse(typeof(GameMode), mode_str);
+        GameMgr._gamemgr._gamemode = mode;
+
+        //一度前オブジェクト false に
         _wholeScreen.SetActive(true);
         TitlePage.SetActive(false);
-
-        GameMgr._gamemgr._gamemode = mode;
-        //一度前オブジェクト false に
-        allSetActive(_stateScreenMapping[  MenuGlobalSetting._gameModeToMenuStateOrder[mode][0] ].transform.parent,false);
+        allChildObjSetActive(_selectBox.transform,false);
+        
+        
+        
+        // 配列 0 の値をセット
         _stateScreenMapping[  MenuGlobalSetting._gameModeToMenuStateOrder[mode][0]  ].SetActive(true);
         _nowstate = MenuGlobalSetting._gameModeToMenuStateOrder[mode][0];
-        
-
-
-        GameMgr._gamemgr._defaultParameter = new GameParameter(100,100,100,100);
-        GameMgr._gamemgr._defaultPoint = 100;
+        _screenTitle.text = MenuGlobalSetting._menuStateToName[_nowstate];
 
 
         switch (mode) {
             case GameMode.Normal:
-                GameMgr._gamemgr._defaultParameter = new GameParameter(100,100,100,100);
-                GameMgr._gamemgr._defaultPoint = 100;
+                // GameMgr._gamemgr._defaultParameter = new GameParameter(100,100,100,100,100);
+                // GameMgr._gamemgr._defaultPoint = 100;
                 break;
         }
     }
@@ -131,16 +134,16 @@ public class MenuMgr : MonoBehaviour
         Debug.Log("Progress");
         int count = _stateStack.Count;
         if (count == MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode].Count - 1) {
-            if (GameMgr._gamemgr._gamemode == GameMode.Normal) {
-            StartGame();
+            _stateStack.Clear();
+            switch(GameMgr._gamemgr._gamemode) {
+                case GameMode.Normal:
+                    StartGame();
+                break;
+                case GameMode.Result:
+                    ReturnTopPage();
+                break;
+            }
             return;
-            }
-
-            if (GameMgr._gamemgr._gamemode == GameMode.Result){
-                _stateStack.Clear();
-                ReturnTopPage();
-                return;
-            }
         }        
 
 
@@ -150,15 +153,6 @@ public class MenuMgr : MonoBehaviour
         _nowstate = MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][count + 1];
         _screenTitle.text = MenuGlobalSetting._menuStateToName[_nowstate];
         
-
-        switch ( _nowstate ){
-            case MenuState.CreateCharacter:
-            case MenuState.ShowRaceDetail:
-                BackGround.SetActive(false);
-                // CreateCharacter.GetComponent<UIIncrementParameterScreenMgr>().SetUI(1000,2, new List<GameUserParameter>(){GameUserParameter.guts,GameUserParameter.speed}, new List<int>(){100,2} );
-            break;
-        }
-
 
         if (count == MenuGlobalSetting._gameModeToMenuStateOrder[ GameMgr._gamemgr._gamemode ].Count - 2) {
             _nextButton.SetActive(false);
@@ -198,22 +192,6 @@ public class MenuMgr : MonoBehaviour
 
 
 
-    // 各 Toggle から呼び出すのが良さそうか
-    public void GetToggleStatus() {
-        MenuState state = MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][_stateStack.Count];
-
-        if (MenuState.SelectClass == state) {
-            UnityEngine.UI.Toggle activetoggle = _toggleClass.ActiveToggles().FirstOrDefault();
-            _selectedClass = activetoggle.gameObject.GetComponent<SetValueToObject>().value;
-        }
-
-        if (MenuState.SelectTerraion == state) {
-            UnityEngine.UI.Toggle activetoggle = _toggleTerrain.ActiveToggles().FirstOrDefault();
-            _selectedTerrain = activetoggle.gameObject.GetComponent<SetValueToObject>().value;
-        }
-    }
-
-
 
 
 
@@ -237,16 +215,15 @@ public class MenuMgr : MonoBehaviour
 
 
 
+//ここからヘルプ用関数
 
-    public void allSetActive(Transform form, bool enable) {
+    public void allChildObjSetActive(Transform form, bool enable) {
         for(int i = 0; i < form.childCount; i++ ) {
             form.GetChild(i).gameObject.SetActive(enable);
         }
     }
 
-
-
-
+// 2画面を切り替える
     private void SwitchScreen(MenuState fromstate, MenuState tostate) {
         _stateScreenMapping[ fromstate ].SetActive(false);
         _stateScreenMapping[ tostate ].SetActive(true);

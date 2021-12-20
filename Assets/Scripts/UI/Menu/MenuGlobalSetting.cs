@@ -33,10 +33,10 @@ public class MenuGlobalSetting
     {MenuState.SelectClass,"SelectClass"},
     {MenuState.CreateCharacter,"CerateCharacter"},
     {MenuState.SelectTerraion,"SelectTerrain"},
-    {MenuState.SelectCup,"SelectCup"},
+    {MenuState.SelectCup,"Races"},
     {MenuState.ShowRaceDetail,"ShowRaceDetail"},
     {MenuState.ResultDetail1,"ShowResultDetail - 1"},
-    {MenuState.ResultDetail2,"ShowResultDetail - 2"},
+    {MenuState.ResultDetail2,"Results"},
     };
 
     public static Dictionary<GameMode, List<MenuState>> _gameModeToMenuStateOrder = new Dictionary<GameMode, List<MenuState>>()

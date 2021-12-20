@@ -48,7 +48,7 @@ public class ManipurateUser : MonoBehaviour
 
             float normalized_inputx = 0;
             float normalized_inputy = 0;
-            (normalized_inputx, normalized_inputy) = NormalizeValue(inputx,inputy);
+            (normalized_inputx, normalized_inputy) = NormalizeValueWithHP(inputx,inputy);
 
             Vector3 playerWorldPos_Next = this.transform.position + new Vector3(normalized_inputx,  normalized_inputy)* 0.1f;
             this.transform.position = playerWorldPos_Next;
@@ -73,31 +73,40 @@ public class ManipurateUser : MonoBehaviour
     private void UpdateUserParameter (float x) {
         float normalized_x = x;
         moveamount+= Mathf.Abs(normalized_x);
+        GameMgr._gamemgr._totalmovedistance+=moveamount;
 
-        float decreaseAmount = 0.1f;
-        List<MapCode> OnMapcodes = GameMgr._gamemgr.GetNowTileMapCodes();
-        for (int i = 0; i < OnMapcodes.Count; i++) {
-            if (OnMapcodes[i] == MapCode.Forest)
-                decreaseAmount *= 5.3f;
-            if (OnMapcodes[i] == MapCode.WaterCource)
-                decreaseAmount *= 10f;
-        }
+
+        float decreaseAmount = 0.05f;
+
+
+        decreaseAmount /= (1.0f / Mathf.Log10(User._user._parameter._stamina) );
 
         if (moveamount > 0.1f) {
             moveamount-=0.1f;
             User._user.UpdateHP( decreaseAmount );
-            User._user.UpdateUnTrackingPosition(0.1f);
+            User._user.UpdateUnTrackingPosition(0.3f / Mathf.Log10(User._user._parameter._intelligence) );
+
+            if (User._user._parameter._hp / User._user._parameter._maxhp < 0.2)
+                User._user._userexp._guts+=2;
+            if (User._user._parameter._hp / User._user._parameter._maxhp > 0.7)
+                User._user._userexp._speed++;
+            if (User._user._parameter._hp / User._user._parameter._maxhp < 0.7)
+                User._user._userexp._stamina++;
         }
 
         if ( Mathf.Abs(x) == 0) {
-            User._user.UpdateHP(-0.05f);
-            User._user.UpdateUnTrackingPosition(-0.05f);
+            User._user.UpdateHP(-0.02f);
+            User._user.UpdateUnTrackingPosition(-0.03f);
+            if (User._user._parameter._trackingPosition <60 && User._user._parameter._trackingPosition > 10)
+                User._user._userexp._intelligence++;
         }
-        
     }
 
+
+
+
     private void LostPositionCheck() {
-        if (User._user._parameter._trackingPosition > 30f + Random.Range(0f,10f)) {
+        if (User._user._parameter._trackingPosition > 100) {
             // lostPosition = true;
             User._user._islostPosition = true;
             lostPositionInterval = 2f + Random.Range(0f,2f);
@@ -106,14 +115,26 @@ public class ManipurateUser : MonoBehaviour
 
     private void AddExtraMaptip() {
         if (User._user._parameter._trackingPosition > 30f) {
-            GameMgr._gamemgr.AddExtraMapTip();
+            // GameMgr._gamemgr.AddExtraMapTip();
             User._user._parameter._trackingPosition -= 5f;
         }
     }
 
-    private (float, float)  NormalizeValue (float x, float y) {
-        float ux = (User._user.GetHPRatio() + 0.3f ) * x;
-        float uy = (User._user.GetHPRatio() + 0.3f ) * y;
+    private (float, float)  NormalizeValueWithHP (float x, float y) {
+        float attenuation = (1.0f - (1.0f - User._user.GetHPRatio()) / Mathf.Log10(User._user._parameter._guts) );
+        float magnification = Mathf.Log10(User._user._parameter._speed) * 0.8f;
+        List<MapCode> OnMapcodes = GameMgr._gamemgr.GetNowTileMapCodes();
+        for (int i = 0; i < OnMapcodes.Count; i++) {
+            if (OnMapcodes[i] == MapCode.Forest)
+                magnification *= 0.3f;
+            if (OnMapcodes[i] == MapCode.WaterCource)
+                magnification *= 0.2f;
+            if (OnMapcodes[i] == MapCode.Open)
+                magnification *= 0.8f;   
+        }
+
+        float ux = ( attenuation + 0.1f ) * x * magnification;
+        float uy = ( attenuation + 0.1f ) * y * magnification;
 
         return (ux,uy);
     }
@@ -150,7 +171,8 @@ public class ManipurateUser : MonoBehaviour
     
 
     private (float, float) InputFromUser() {
-        (float x,float y) = InputMoveDirectionFromKey();
+        // (float x,float y) = InputMoveDirectionFromKey();
+        (float x,float y) = InputMoveDirectionFromMOvileDevice();
 
         if( x != 0 || y != 0 ) {
             anim.SetBool ( "stop", false );
@@ -165,6 +187,16 @@ public class ManipurateUser : MonoBehaviour
         float x = Input.GetAxisRaw("Horizontal");
         float y = Input.GetAxisRaw("Vertical");
          y = 0;
+
+        return (x, y);
+    }
+
+    private (float, float) InputMoveDirectionFromMOvileDevice() {
+        float x = 0.5f;
+        if (Input.GetMouseButton(0)) {
+            x = 0;
+        }
+        float y = 0;
 
         return (x, y);
     }

@@ -1,23 +1,23 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System;
 
+[System.Serializable]
 public class Geology {
-    // public int _forest_amount;
-    // public int _watercourse_amount; //水系
-    // public int _boulder_cluster_amount; // 礫地
-    // public int _open_land_amount; // open
-    // public int _road_amount;
-    // public int _vegetation_amount; //ハッチ
 
+    public Dictionary<MapCode,List<string>> MapCode_Sprite_Mappings;
     public Dictionary<MapCode,int> MaptipRatio;
+    public List<SerializableMapTipdata> MaptipRatioData;
     
+
     public Geology () 
     {
         MaptipRatio = new Dictionary<MapCode, int>();
+        MapCode_Sprite_Mappings = new Dictionary<MapCode, List<string>>();
     }
 
-    public int TotalAmmount ()
+    public int TotalRatioAmmount ()
     {
         int a = 0;
         foreach (KeyValuePair<MapCode, int> item in MaptipRatio) {
@@ -26,4 +26,19 @@ public class Geology {
         return a;
     }
 
+    public void convertFromDataToDictionary(){
+        foreach (SerializableMapTipdata item in MaptipRatioData) {
+            Debug.Log(item.name);
+            Debug.Log(item.spritenames[0]);
+            MaptipRatio.Add(  (MapCode)Enum.Parse(typeof(MapCode), item.name, true) , item.value);
+            MapCode_Sprite_Mappings.Add( (MapCode)Enum.Parse(typeof(MapCode), item.name, true), item.spritenames);
+        }
+    }
+}
+
+[System.Serializable]
+public class SerializableMapTipdata {
+    public string name;
+    public int value;
+    public List<string> spritenames;
 }

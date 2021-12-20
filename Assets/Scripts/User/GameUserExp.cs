@@ -8,11 +8,11 @@ using System;
 
 
 public class GameUserExp {
-    float _speed = 0;
-    float _stamina = 0;
-    float _intelligence = 0;
-    float _guts = 0;
-    float _maxhp = 0;
+    public float _speed = 0;
+    public float _stamina = 0;
+    public float _intelligence = 0;
+    public float _guts = 0;
+    public float _maxhp = 0;
 
 
 
@@ -67,32 +67,36 @@ public class GameUserExp {
             lvUpList[i] = 0;
         
 
-        while(Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(_speedlv), 2)  ) * 100 < _speed) {
+        while(CalcExpFromLv(_speedlv) < _speed){
             _speedlv++;
             lvUpList[GameUserParameter.speed]++;
         }
 
-        while(Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(_staminalv), 2)  ) * 100 < _stamina) {
+        while(CalcExpFromLv(_staminalv) < _stamina) {
             _staminalv++;
             lvUpList[GameUserParameter.stamina]++;
         }
 
-        while(Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(_intelligencelv), 2)  ) * 100 < _intelligence) {
+        while(CalcExpFromLv(_intelligencelv) < _intelligence) {
             _intelligencelv++;
             lvUpList[GameUserParameter.intelligence]++;
         }
 
-        while(Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(_gutslv), 2)  ) * 100 < _guts) {
+        while(CalcExpFromLv(_gutslv) < _guts) {
             _gutslv++;
             lvUpList[GameUserParameter.guts]++;
         }
 
-        while(Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(_maxhplv), 2)  ) * 100 < _maxhp) {
+        while(CalcExpFromLv(_maxhplv) < _maxhp) {
             _maxhplv++;
             lvUpList[GameUserParameter.maxhp]++;
         }
 
         return lvUpList;
+    }
+
+    static public float CalcExpFromLv(int lv){
+        return Mathf.Pow(2f,   Mathf.Pow( Mathf.Log(lv), 1.4f)  ) * 100;
     }
     
 
@@ -112,15 +116,12 @@ public class GameUserExp {
         this.addExp(speed,stamina,intelligence,guts,maxhp);
     }
 
-    public void GoalCup() {
-        float stamina = 0;
-        float speed = 0;
-        float intelligence = 0;
-        float guts = 0;
-        float maxhp = 0;
-
-        maxhp += 1000;
-        guts += 1000f;
+    public void GoalCup(int difficulty) {
+        float stamina = 100f * difficulty;
+        float speed = 100f * difficulty;
+        float intelligence = 100f * difficulty;
+        float guts = 100f * difficulty;
+        float maxhp = 130f * difficulty;
 
         this.addExp(speed,stamina,intelligence,guts,maxhp);
     }

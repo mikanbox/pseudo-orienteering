@@ -8,38 +8,32 @@ using System;
 public class StageMgr  
 {
     public Stage _stage;
-
-    private int _random_seed = 0;
     public static int _margin = 10;
+    public static int DISTMAG = 3;
 
 
     public static StageMgr _stagemgr;
-
     // これを外部から参照することでゲームを生成する
     public List<List<Maptip>> stageArray;
 
-    public static void GenerateMapArray(){
-        _stagemgr = new StageMgr();
-        
-    }
-
-    public StageMgr ()
+    public static void GenerateMapArray(int terrainId)
     {
-        LoadStageData();
-        GenerateStageFromData(_random_seed);
-
+        _stagemgr = new StageMgr(terrainId);
     }
 
-
-    private void LoadStageData()
+    public StageMgr (int terrainId)
     {
-        _stage = new Stage();
+        _stage = new Stage(terrainId);
+        GenerateStageArrayFromData();
+        UnityEngine.Random.InitState(System.DateTime.Now.Millisecond);
     }
 
-    private void GenerateStageFromData(int _random_seed)
+
+
+    private void GenerateStageArrayFromData()
     {
         // Generate Start [x axis][height]
-        this.stageArray = new List<List<Maptip>> (_stage._total_distance + _margin * 2);
+        this.stageArray = new List<List<Maptip>> (_stage._total_distance * DISTMAG + _margin * 2);
         for (int i = 0; i < _margin; i++ ) {
             stageArray.Add(new List<Maptip>());
             if (i == _margin - 1) {
@@ -69,40 +63,37 @@ public class StageMgr
 
 
         // Generate Maps
-
         Geology g = _stage._geology;
-        int total_amount = g.TotalAmmount();
-        int total_dist = _stage._total_distance * _margin;
+        int total_ratio_amount = g.TotalRatioAmmount();
+        int total_dist = _stage._total_distance * DISTMAG;
         List<MapCode> array = new List<MapCode>();
 
+        // 割合ベースでMapCodeを配列に格納した後、順番をシャッフル
         foreach (MapCode mp in Enum.GetValues(typeof(MapCode)))
         {
             if (g.MaptipRatio.ContainsKey(mp)) {
-                int amount = (g.MaptipRatio[mp] * total_dist) / total_amount;
+                int amount = (g.MaptipRatio[mp] * total_dist) / total_ratio_amount;
                 for (int i = 0;i < amount;i++)
                     array.Add(mp);
             }
         }
-
-
-        for(int i = array.Count; i < total_dist; i++) {
+        for(int i = array.Count; i < total_dist; i++) 
             array.Add(MapCode.Open);
-        }
+        
         Shuffle(array);
 
 
-
-
+        // 作成した arrayを元に stageArray (MapTip) へ追加
+        // 実際の距離は　距離 * DISTMAG - 2
         int d = 10;
         for(int i = 0; i < _stage._sections.Count; i++ ) {
             Section s = _stage._sections[i];
-            for(int j = 0; j < s._distance * 10; j++) {
+            for(int j = 0; j < s._distance * DISTMAG; j++) {
                 stageArray.Add(new List<Maptip>());
 
-                // stageArray[d].Add(new Maptip(0, 0, true));
                 stageArray[d].Add(new Maptip(array[d - 10], 0, true));
 
-                if ( j == s._distance * 10 - 1 ) {
+                if ( j == s._distance * DISTMAG - 1 ) {
                     if ( d == total_dist + 10 -1) {
                         stageArray[d].Add(new Maptip(MapCode.Open, 0, true));
                         continue;
@@ -118,8 +109,13 @@ public class StageMgr
             }
         }
 
-        // Generate Goal
 
+
+
+
+
+
+        // Generate Goal
         for (int i = 0; i < 10; i++ ) {
             stageArray.Add(new List<Maptip>());
             if (i == 0) {
@@ -132,7 +128,12 @@ public class StageMgr
                 stageArray[d+i].Add(new Maptip(MapCode.Goal3, 0, true));
             }
         }
+
+
     }
+
+
+
 
     private void Shuffle<T> (List<T> num) 
     {
@@ -145,16 +146,7 @@ public class StageMgr
         }
     }
 
-    private void TestSetUserData()
-    {
-        this.stageArray = new List<List<Maptip>> (100);
-        for(int i = 0; i < stageArray.Capacity; ++i ) {
-            stageArray.Add(new List<Maptip>());
-            // stageArray[i].Add(new Maptip(1, 1, true));
-        }
-    }
-
     public bool isReachGoal(int x){
-        return (_stage._total_distance * 10  <= x - 10);
+        return (_stage._total_distance * DISTMAG  <= x - 10);
     }
 }

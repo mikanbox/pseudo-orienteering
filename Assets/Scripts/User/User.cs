@@ -43,6 +43,13 @@ public class User : MonoBehaviour
         _userexp = new GameUserExp();
     }
 
+    public void ResetUserStateAfterClear() {
+        _parameter._hp = _parameter._maxhp;
+        _parameter._trackingPosition = 70f / Mathf.Log10(User._user._userexp._intelligence);
+        _windowHpSlider.value = GetHPRatio();
+        _windowTrackingSlider.value = _parameter._trackingPosition /100f;
+    }
+
 
 
     public void UpdateExp(GameUserExp tmpexp) {

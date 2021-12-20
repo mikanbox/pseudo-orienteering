@@ -36,5 +36,12 @@ public class Timer : MonoBehaviour  {
         return hhmmss;
     }
 
+    public string GetMMSSFF(float seconds ){
+        var span = TimeSpan.FromMilliseconds(seconds * 1000);
+        var hhmmss = span.ToString(@"mm\:ss");
+        hhmmss+="."+ string.Format("{0:D2}", seconds * 10);
+        
+        return hhmmss;
+    }
 
 }

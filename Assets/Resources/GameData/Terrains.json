@@ -1,32 +1,76 @@
 {
     "terrains": [
         {
-            "id":1,
+            "id":0,
             "name":"小さな街",
-            "geology" : [
-                {
-                    "open":1
-                }
-            ],
-            "parameters" : [
-                {
-                    "difficulty":1
-                }
-            ]
+            "geology" : {
+                "MaptipRatioData":[
+                    {
+                        "name":"Base",
+                        "value":0,
+                        "spritenames":[
+                            "tilemap_1"
+                        ]
+                    },
+                    {
+                        "name":"Road",
+                        "value":10,
+                        "spritenames":[
+                            "tilemap_1"
+                        ]
+                    },
+                    {
+                        "name":"Open",
+                        "value":40,
+                        "spritenames":[
+                            "tilemap_2"
+                        ]
+                    },
+                    {
+                        "name":"Bush",
+                        "value":20,
+                        "spritenames":[
+                            "tilemap_2","tilemap_3"
+                        ]
+                    }
+                ]
+            }
         },
         {
             "id":1,
             "name":"はじまりの草原",
-            "geology" : [
-                {
-                    "open":1
-                }
-            ],
-            "parameters" : [
-                {
-                    "difficulty":1
-                }
-            ]
+            "geology" : {
+                "MaptipRatioData":[
+                    {
+                        "name":"Base",
+                        "value":0,
+                        "spritenames":[
+                            "tilemap_2"
+                        ]
+                    },
+                    {
+                        "name":"Road",
+                        "value":10,
+                        "spritenames":[
+                            "tilemap_1"
+                        ]
+                    },
+                    {
+                        "name":"Open",
+                        "value":40,
+                        "spritenames":[
+                            "tilemap_2"
+                        ]
+                    },
+                    {
+                        "name":"Forest",
+                        "value":20,
+                        "spritenames":[
+                            "tilemap_2","tilemap_27","tilemap_19"
+                        ]
+                    }
+                ]
+            }
         }
     ]
 }

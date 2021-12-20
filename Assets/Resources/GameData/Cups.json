@@ -1,36 +1,49 @@
 {
     "cups": [
         {
-            "id":1,
+            "id":0,
             "name":"チュートリアル",
             "terrain" : 0,
-            "distance" : 10,
+            "distance" : 4,
             "difficulty" : 1,
-            "rank" : 1
+            "rank" : 1,
+            "targetrecord": 100
+        },
+        {
+            "id":1,
+            "name":"チュートリアル - 2",
+            "terrain" : 0,
+            "distance" : 6,
+            "difficulty" : 1,
+            "rank" : 1,
+            "targetrecord": 15
         },
         {
             "id":2,
-            "name":"チュートリアル - 2",
+            "name":"チュートリアル - 3",
             "terrain" : 0,
-            "distance" : 15,
-            "difficulty" : 1,
-            "rank" : 1
+            "distance" : 10,
+            "difficulty" : 2,
+            "rank" : 1,
+            "targetrecord": 25
         },
         {
             "id":3,
-            "name":"チュートリアル - 3",
-            "terrain" : 0,
-            "distance" : 19,
-            "difficulty" : 2,
-            "rank" : 1
+            "name":"ウェルカムカップ",
+            "terrain" : 1,
+            "distance" : 6,
+            "difficulty" : 1,
+            "rank" : 1,
+            "targetrecord": 20
         },
         {
             "id":4,
-            "name":"ワクワクビギナーズカップ",
+            "name":"ウェルカムカップ - 2",
             "terrain" : 1,
-            "distance" : 12,
-            "difficulty" : 1,
-            "rank" : 1
+            "distance" : 10,
+            "difficulty" : 2,
+            "rank" : 2,
+            "targetrecord": -1
         }
     ]
 }

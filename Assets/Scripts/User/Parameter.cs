@@ -24,15 +24,18 @@ public class GameParameter
     };
 
 
+    public GameParameter(){
+        
+    }
 
-
-    public GameParameter(int speed, int stamina, int intelligence, int guts, float maxhp) {
+    public GameParameter(float maxhp, int speed, int stamina, int intelligence, int guts) {
+        _maxhp = maxhp;
         _speed = speed;
         _stamina = stamina;
         _intelligence = intelligence;
         _guts = guts;
 
-        _maxhp = maxhp;
+        
         _hp = _maxhp;
         _trackingPosition = 0;
     }

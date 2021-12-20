@@ -18,8 +18,15 @@ public class UIResultDetail : MonoBehaviour
     [SerializeField]
     private List<Text> _paramexText;
 
+    [SerializeField]
+    private List<Text> _paramexpText;
+
     void OnEnable() {
-        _Score.text = GameMgr._gamemgr._GamePlaytimer.GetHHMMSS(GameMgr._gamemgr._GamePlaytimer._recordedTime);
+        Debug.Log("UpdateResult");
+        
+        _Score.text = GameMgr._gamemgr._GamePlaytimer.GetMMSSFF(GameMgr._gamemgr._GamePlaytimer._recordedTime);
+        _BestScore.text = GameMgr._gamemgr._GamePlaytimer.GetMMSSFF(GameMgr._gamemgr._gamesavedata._records[GameMgr._gamemgr._selectedcupid]._BestRecord);
+        _TargetScore.text = GameMgr._gamemgr._GamePlaytimer.GetMMSSFF(GameGlobalClasses._gameglobal._cups.cups[GameMgr._gamemgr._selectedcupid].targetrecord);
 
         // User._user._isLVUpCheckRes
         UpdateUserParam();
@@ -32,17 +39,24 @@ public class UIResultDetail : MonoBehaviour
         _paramText[3].text = User._user._parameter._intelligence.ToString();
         _paramText[4].text = User._user._parameter._guts.ToString();
 
-        _paramexText[0].text = (User._user._parameter.GetSingleParam(GameUserParameter.maxhp) - User._user._PrevParams[GameUserParameter.maxhp]).ToString();
-        _paramexText[1].text = (User._user._parameter.GetSingleParam(GameUserParameter.speed) - User._user._PrevParams[GameUserParameter.speed]).ToString();
-        _paramexText[2].text = (User._user._parameter.GetSingleParam(GameUserParameter.stamina) - User._user._PrevParams[GameUserParameter.stamina]).ToString();
-        _paramexText[3].text = (User._user._parameter.GetSingleParam(GameUserParameter.intelligence) - User._user._PrevParams[GameUserParameter.intelligence]).ToString();
-        _paramexText[4].text = (User._user._parameter.GetSingleParam(GameUserParameter.guts) - User._user._PrevParams[GameUserParameter.guts]).ToString();
+        _paramexText[0].text = "+"+(User._user._parameter.GetSingleParam(GameUserParameter.maxhp) - User._user._PrevParams[GameUserParameter.maxhp]).ToString();
+        _paramexText[1].text = "+"+(User._user._parameter.GetSingleParam(GameUserParameter.speed) - User._user._PrevParams[GameUserParameter.speed]).ToString();
+        _paramexText[2].text = "+"+(User._user._parameter.GetSingleParam(GameUserParameter.stamina) - User._user._PrevParams[GameUserParameter.stamina]).ToString();
+        _paramexText[3].text = "+"+(User._user._parameter.GetSingleParam(GameUserParameter.intelligence) - User._user._PrevParams[GameUserParameter.intelligence]).ToString();
+        _paramexText[4].text = "+"+(User._user._parameter.GetSingleParam(GameUserParameter.guts) - User._user._PrevParams[GameUserParameter.guts]).ToString();
+
+
+        _paramexpText[0].text = " "+ (int)User._user._userexp._maxhp + "/" + (int)GameUserExp.CalcExpFromLv(User._user._userexp._maxhplv);
+        _paramexpText[1].text = " "+ (int)User._user._userexp._speed + "/" + (int)GameUserExp.CalcExpFromLv(User._user._userexp._speedlv);
+        _paramexpText[2].text = " "+ (int)User._user._userexp._stamina + "/" + (int)GameUserExp.CalcExpFromLv(User._user._userexp._staminalv);
+        _paramexpText[3].text = " "+ (int)User._user._userexp._intelligence + "/" + (int)GameUserExp.CalcExpFromLv(User._user._userexp._intelligencelv);
+        _paramexpText[4].text = " "+ (int)User._user._userexp._guts + "/" + (int)GameUserExp.CalcExpFromLv(User._user._userexp._gutslv);
 
         
     }
 
     void OnDisable() {
-        
+        this.gameObject.SetActive(false);
     }
 
     

@@ -1,9 +1,10 @@
 using MC = MapCode;
 public enum MapCode
 {
+    Base,
     Open,
     Forest,
-    Bounlder,
+    Bush,
     Road,
     WaterCource,
     Post,

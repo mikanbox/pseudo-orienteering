@@ -26,10 +26,10 @@ public class UIShowRaceDetail : MonoBehaviour
 
 
     void OnEnable() {
-        if (UISelectCup._selected < 0)
-            UISelectCup._selected = 0;
-        _selectedCup = GameGlobalClasses._gameglobal._cups.cups[ UISelectCup._selected ];
-        _selectedTerrain = GameGlobalClasses._gameglobal._terrains.terrains[_selectedCup.terrain];
+        // if (UISelectCup._selected < 0)
+        //     UISelectCup._selected = 0;
+        // _selectedCup = GameGlobalClasses._gameglobal._cups.cups[ UISelectCup._selected ];
+        // _selectedTerrain = GameGlobalClasses._gameglobal._terrains.terrains[_selectedCup.terrain];
 
         _terrainComplexity.text = "難易度 : " + _selectedCup.difficulty;
         _cupDistance.text = "距離　 : " + _selectedCup.distance;

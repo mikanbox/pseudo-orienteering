@@ -115,6 +115,7 @@ public class MenuMgr : MonoBehaviour
         _stateScreenMapping[  MenuGlobalSetting._gameModeToMenuStateOrder[mode][0]  ].SetActive(true);
         _nowstate = MenuGlobalSetting._gameModeToMenuStateOrder[mode][0];
         _screenTitle.text = MenuGlobalSetting._menuStateToName[_nowstate];
+        _screenTitle.gameObject.GetComponent<UpdateRelatedText>().OnValueChanged();
 
 
         switch (mode) {
@@ -152,6 +153,7 @@ public class MenuMgr : MonoBehaviour
         SwitchScreen(_nowstate, MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][count + 1] );
         _nowstate = MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][count + 1];
         _screenTitle.text = MenuGlobalSetting._menuStateToName[_nowstate];
+        _screenTitle.gameObject.GetComponent<UpdateRelatedText>().OnValueChanged();
         
 
         if (count == MenuGlobalSetting._gameModeToMenuStateOrder[ GameMgr._gamemgr._gamemode ].Count - 2) {
@@ -175,6 +177,7 @@ public class MenuMgr : MonoBehaviour
         SwitchScreen(_nowstate, MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][count-1] );
         _nowstate = MenuGlobalSetting._gameModeToMenuStateOrder[GameMgr._gamemgr._gamemode][count-1];
         _screenTitle.text = MenuGlobalSetting._menuStateToName[_nowstate];
+        _screenTitle.gameObject.GetComponent<UpdateRelatedText>().OnValueChanged();
 
         switch (prestate){
             case MenuState.ShowRaceDetail:

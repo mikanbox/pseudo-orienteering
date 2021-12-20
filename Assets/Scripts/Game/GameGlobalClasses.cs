@@ -16,9 +16,13 @@ public class GameGlobalClasses : MonoBehaviour
     
     void Start() {
         _gameglobal = this.GetComponent<GameGlobalClasses>();
-        LoadJson.Load<TerrainsData>(ref _terrains,"GameData/Terrains");
-        LoadJson.Load<CupsData>(ref _cups,"GameData/Cups");
-        Debug.Log(_terrains.terrains[0].name);
+        SaveLoadJson.Load<TerrainsData>(ref _terrains,"GameData/Terrains");
+        foreach(var item in _terrains.terrains)
+            item.geology.convertFromDataToDictionary();
+
+        SaveLoadJson.Load<CupsData>(ref _cups,"GameData/Cups");
+
+        Debug.Log("====== GameLoad =======");
     }
 }
 
@@ -29,6 +33,10 @@ public class TerrainData
 {
     public int id;
     public string name;
+    public Geology geology;
+
+    public String geology_string;
+
 }
 
 
@@ -49,6 +57,7 @@ public class CupData
     public int terrain;
     public int distance;
     public int difficulty;
+    public int targetrecord;
 }
 
 

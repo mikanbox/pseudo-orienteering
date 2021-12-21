@@ -103,7 +103,8 @@ public class GameMgr : MonoBehaviour
             return;
         // ゲームプレイ中の処理 
         GenerateMapArroundPlayer(_player.transform.position);
-        _time.text = "" + Math.Round( _GamePlaytimer.GetElapsedTime(), 2 )  ;
+        // _time.text = "" + Math.Round( _GamePlaytimer.GetElapsedTime(), 2 )  ;
+        _time.text = _GamePlaytimer.GetMMSSFF(_GamePlaytimer.GetElapsedTime());
 
         // 終了条件
         if (StageMgr._stagemgr.isReachGoal(  PlayerPosXonMap((int)_player.transform.position.x )+1  ) )
